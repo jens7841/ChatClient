@@ -1,6 +1,10 @@
 package surfaces;
 
+import client.Client;
+
 public abstract class Surface {
+
+	public abstract void startChatInput(Client client);
 
 	public abstract void outputChatMessaage(String message);
 

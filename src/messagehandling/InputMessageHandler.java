@@ -40,9 +40,8 @@ public class InputMessageHandler extends Thread {
 			break;
 		case LOGIN_SUCCESS_MESSAGE:
 			if (!client.isLoggedIn()) {
-				client.setLoggedIn(true);
 				surface.outputSuccessMessage(message.toString());
-				client.activateChat();
+				client.login();
 			}
 			break;
 		case LOGIN:

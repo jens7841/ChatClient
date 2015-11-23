@@ -16,9 +16,9 @@ public class MessageListener extends Thread {
 	@Override
 	public void run() {
 		while (!client.getSocket().isClosed()) {
+			MessageInputStream in = null;
 			try {
-				MessageInputStream in = new MessageInputStream(
-						new BufferedInputStream(client.getSocket().getInputStream()));
+				in = new MessageInputStream(new BufferedInputStream(client.getSocket().getInputStream()));
 
 				Message msg = in.readMessage();
 
@@ -27,8 +27,12 @@ public class MessageListener extends Thread {
 			} catch (IOException e) {
 				try {
 					client.getSocket().close();
+					if (in != null) {
+						in.close();
+					}
 				} catch (IOException e1) {
 				}
+				client.getSurface().outputErrorMessage("Verbindung zum Server verloren!");
 			}
 		}
 	}

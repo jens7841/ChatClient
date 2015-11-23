@@ -5,6 +5,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import client.Client;
+import messagehandling.Message;
+import messagehandling.MessageType;
+
 public class CmdSurface extends Surface {
 
 	@Override
@@ -14,7 +18,7 @@ public class CmdSurface extends Surface {
 
 	@Override
 	public void outputErrorMessage(String message) {
-		System.out.println("Error: " + message);
+		System.err.println("Error: " + message);
 	}
 
 	@Override
@@ -41,6 +45,21 @@ public class CmdSurface extends Surface {
 	@Override
 	public void outputSuccessMessage(String message) {
 		System.out.println(message);
+	}
+
+	@Override
+	public void startChatInput(Client client) {
+		while (!client.getSocket().isClosed()) {
+			String input = getDefaultChatInput();
+			input = input.trim();
+			if (client.getSocket().isClosed()) {
+				outputErrorMessage("Verbindung zum Server verloren!");
+				return;
+			}
+			if (!input.isEmpty()) {
+				client.sendChatMessage(new Message(input, MessageType.CHAT_MESSAGE));
+			}
+		}
 	}
 
 }

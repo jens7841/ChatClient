@@ -2,7 +2,6 @@ package client;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 import chatshared.Messages;
 import messagehandling.Message;
@@ -13,6 +12,7 @@ import surfaces.Surface;
 
 public class Client extends Thread {
 
+	private Object waitForLogin = new Object();
 	private Surface surface;
 	private Socket socket;
 	private boolean login;
@@ -25,31 +25,39 @@ public class Client extends Thread {
 		this.start();
 	}
 
-	private void createSocket() throws UnknownHostException, IOException {
-		String ip = surface.getInputWithMessage("IP");
-
+	private void createSocket() {
 		boolean correctInput = false;
-		int port = 0;
-
 		while (!correctInput) {
 			try {
-				port = Integer.parseInt(surface.getInputWithMessage("Port"));
+				String ip = surface.getInputWithMessage("IP");
+
+				int port = 0;
+
+				while (!correctInput) {
+					try {
+						port = Integer.parseInt(surface.getInputWithMessage("Port"));
+						correctInput = true;
+					} catch (NumberFormatException e) {
+						correctInput = false;
+					}
+				}
+
+				socket = new Socket(ip, port);
 				correctInput = true;
-			} catch (NumberFormatException e) {
+			} catch (IOException | IllegalArgumentException e) {
+				surface.outputErrorMessage("Fehler beim Verbindungsaufbau!");
+				correctInput = false;
 			}
 		}
-
-		socket = new Socket(ip, port);
-
 	}
 
 	public void performLogin() {
 
 		String username = "";
-		while (username.isEmpty())
+		while (username.trim().isEmpty())
 			username = surface.getInputWithMessage("Username");
 		String passwort = "";
-		while (passwort.isEmpty())
+		while (passwort.trim().isEmpty())
 			passwort = surface.getInputWithMessage("Passwort");
 
 		byte[] message = new byte[username.length() + passwort.length() + 1];
@@ -74,38 +82,36 @@ public class Client extends Thread {
 		return surface;
 	}
 
-	public void setLoggedIn(boolean b) {
-		this.login = b;
+	public void login() {
+		synchronized (waitForLogin) {
+			waitForLogin.notifyAll();
+		}
 	}
 
 	public boolean isLoggedIn() {
 		return login;
 	}
 
-	public void activateChat() {
+	public void sendChatMessage(Message message) {
+		new MessageSender(socket).sendMessage(message);
+	}
 
-		new Thread() {
-			@Override
-			public void run() {
-				while (!socket.isClosed()) {
-					String msg = surface.getDefaultChatInput();
-					new MessageSender(socket).sendMessage(new Message(msg, MessageType.CHAT_MESSAGE));
-				}
-			}
-		}.start();
-
+	private void startChat() {
+		surface.startChatInput(this);
 	}
 
 	@Override
 	public void run() {
-		try {
-			createSocket();
-			new MessageListener(this).start();
-			performLogin();
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+		createSocket();
+		new MessageListener(this).start();
+		performLogin();
+		synchronized (waitForLogin) {
+			try {
+				waitForLogin.wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			startChat();
 		}
 	}
 
