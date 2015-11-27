@@ -23,7 +23,7 @@ public class MessageInputStream extends InputStream {
 		StringBuilder builder = new StringBuilder();
 		MessageType msgType = MessageType.getType(in.read());
 		int read;
-		while ((read = in.read()) != Messages.END_OF_MESSAGE) {
+		while ((read = in.read()) != Messages.END_OF_MESSAGE && read != -1) {
 			builder.append((char) read);
 		}
 

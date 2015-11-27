@@ -49,6 +49,14 @@ public class CmdSurface extends Surface {
 
 	@Override
 	public void startChatInput(Client client) {
+		if (!chatHasStarted) {
+			this.client = client;
+			start();
+		}
+	}
+
+	@Override
+	public void run() {
 		while (!client.getSocket().isClosed()) {
 			String input = getDefaultChatInput();
 			input = input.trim();
@@ -57,9 +65,10 @@ public class CmdSurface extends Surface {
 				return;
 			}
 			if (!input.isEmpty()) {
-				client.sendChatMessage(new Message(input, MessageType.CHAT_MESSAGE));
+				client.sendMessage(new Message(input, MessageType.CHAT_MESSAGE));
 			}
 		}
+
 	}
 
 }

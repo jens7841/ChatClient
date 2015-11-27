@@ -2,6 +2,7 @@ package messagehandling;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.net.SocketException;
 
 import client.Client;
 
@@ -15,8 +16,8 @@ public class MessageListener extends Thread {
 
 	@Override
 	public void run() {
+		MessageInputStream in = null;
 		while (!client.getSocket().isClosed()) {
-			MessageInputStream in = null;
 			try {
 				in = new MessageInputStream(new BufferedInputStream(client.getSocket().getInputStream()));
 
@@ -24,16 +25,22 @@ public class MessageListener extends Thread {
 
 				new InputMessageHandler(client).handleMessage(msg);
 
+			} catch (SocketException e) {
+				if (!e.getMessage().equalsIgnoreCase("socket closed"))
+					client.getSurface().outputErrorMessage("Verbindung zum Server verloren!");
+				break;
 			} catch (IOException e) {
-				try {
-					client.getSocket().close();
-					if (in != null) {
-						in.close();
-					}
-				} catch (IOException e1) {
-				}
-				client.getSurface().outputErrorMessage("Verbindung zum Server verloren!");
+				break;
 			}
 		}
+
+		try {
+			client.getSocket().close();
+			if (in != null) {
+				in.close();
+			}
+		} catch (IOException e1) {
+		}
+
 	}
 }

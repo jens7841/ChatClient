@@ -3,6 +3,7 @@ package messagehandling;
 public class Message {
 
 	private byte[] message;
+	private String strMessage;
 	private MessageType type;
 
 	public Message(byte[] message, MessageType type) {
@@ -12,6 +13,7 @@ public class Message {
 
 	public Message(String message, MessageType type) {
 		this(message.getBytes(), type);
+		this.strMessage = message;
 	}
 
 	public MessageType getType() {
@@ -24,12 +26,6 @@ public class Message {
 
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
-
-		for (byte b : message) {
-			builder.append((char) b);
-		}
-
-		return builder.toString();
+		return String.valueOf(message);
 	}
 }

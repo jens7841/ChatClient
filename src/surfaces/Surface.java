@@ -2,7 +2,10 @@ package surfaces;
 
 import client.Client;
 
-public abstract class Surface {
+public abstract class Surface extends Thread {
+
+	protected boolean chatHasStarted;
+	protected Client client;
 
 	public abstract void startChatInput(Client client);
 

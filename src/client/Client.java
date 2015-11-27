@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.Socket;
 
 import chatshared.Messages;
+import commands.Upload;
+import messagehandling.CommandHandler;
 import messagehandling.Message;
 import messagehandling.MessageListener;
 import messagehandling.MessageSender;
@@ -14,6 +16,7 @@ public class Client extends Thread {
 
 	private Object waitForLogin = new Object();
 	private Surface surface;
+	private CommandHandler commandHandler = new CommandHandler();
 	private Socket socket;
 	private boolean login;
 
@@ -25,17 +28,21 @@ public class Client extends Thread {
 		this.start();
 	}
 
-	private void createSocket() {
+	private void initializeCommands() {
+		commandHandler.addCommand(new Upload("upload"));
+	}
+
+	public void createSocket() {
 		boolean correctInput = false;
 		while (!correctInput) {
 			try {
-				String ip = surface.getInputWithMessage("IP");
+				String ip = "10.42.1.97";// surface.getInputWithMessage("IP");
 
 				int port = 0;
 
 				while (!correctInput) {
 					try {
-						port = Integer.parseInt(surface.getInputWithMessage("Port"));
+						port = 12345;// Integer.parseInt(surface.getInputWithMessage("Port"));
 						correctInput = true;
 					} catch (NumberFormatException e) {
 						correctInput = false;
@@ -51,12 +58,15 @@ public class Client extends Thread {
 		}
 	}
 
+	private static int i = 1;
+
 	public void performLogin() {
 
-		String username = "";
+		String username = "jens" + i;
+		i++;
 		while (username.trim().isEmpty())
 			username = surface.getInputWithMessage("Username");
-		String passwort = "";
+		String passwort = "jens";
 		while (passwort.trim().isEmpty())
 			passwort = surface.getInputWithMessage("Passwort");
 
@@ -74,7 +84,7 @@ public class Client extends Thread {
 
 	}
 
-	public Socket getSocket() {
+	public synchronized Socket getSocket() {
 		return socket;
 	}
 
@@ -92,7 +102,12 @@ public class Client extends Thread {
 		return login;
 	}
 
-	public void sendChatMessage(Message message) {
+	public void sendMessage(Message message) {
+		if (message.getType() == MessageType.CHAT_MESSAGE && message.toString().startsWith("/")) {
+			if (commandHandler.handleCommand(this, message.toString().substring(1))) {
+				return;
+			}
+		}
 		new MessageSender(socket).sendMessage(message);
 	}
 
@@ -102,6 +117,7 @@ public class Client extends Thread {
 
 	@Override
 	public void run() {
+		initializeCommands();
 		createSocket();
 		new MessageListener(this).start();
 		performLogin();

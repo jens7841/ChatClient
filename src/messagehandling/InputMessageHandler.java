@@ -1,5 +1,7 @@
 package messagehandling;
 
+import java.io.IOException;
+
 import client.Client;
 import surfaces.Surface;
 
@@ -22,6 +24,9 @@ public class InputMessageHandler extends Thread {
 
 		Surface surface = client.getSurface();
 
+		if (message == null)
+			return;
+
 		switch (message.getType()) {
 		case CHAT_MESSAGE:
 			surface.outputChatMessaage(message.toString());
@@ -43,6 +48,14 @@ public class InputMessageHandler extends Thread {
 				surface.outputSuccessMessage(message.toString());
 				client.login();
 			}
+			break;
+		case DISCONNECT:
+			surface.outputSuccessMessage("Verbindung zum Server verloren: " + message.toString());
+			try {
+				client.getSocket().close();
+			} catch (IOException e) {
+			}
+			new Client(client.getSurface()).startClient();
 			break;
 		case LOGIN:
 		default:
