@@ -23,6 +23,7 @@ public class CmdSurface extends Surface {
 
 	@Override
 	public String getDefaultChatInput() {
+		System.out.print("> ");
 		BufferedReader reader = new BufferedReader(new InputStreamReader(new BufferedInputStream(System.in)));
 		String input = "";
 		try {
@@ -57,11 +58,13 @@ public class CmdSurface extends Surface {
 
 	@Override
 	public void run() {
+		chatHasStarted = true;
 		while (!client.getSocket().isClosed()) {
 			String input = getDefaultChatInput();
 			input = input.trim();
 			if (client.getSocket().isClosed()) {
 				outputErrorMessage("Verbindung zum Server verloren!");
+				chatHasStarted = false;
 				return;
 			}
 			if (!input.isEmpty()) {

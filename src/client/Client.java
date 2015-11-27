@@ -36,7 +36,7 @@ public class Client extends Thread {
 		boolean correctInput = false;
 		while (!correctInput) {
 			try {
-				String ip = "10.42.1.97";// surface.getInputWithMessage("IP");
+				String ip = "";// surface.getInputWithMessage("IP");
 
 				int port = 0;
 
