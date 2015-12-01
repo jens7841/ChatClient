@@ -1,9 +1,8 @@
 package messagehandling;
 
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-
-import chatshared.Messages;
 
 public class MessageInputStream extends InputStream {
 
@@ -20,14 +19,18 @@ public class MessageInputStream extends InputStream {
 
 	public Message readMessage() throws IOException {
 
-		StringBuilder builder = new StringBuilder();
+		DataInputStream dataIn = new DataInputStream(this);
+
 		MessageType msgType = MessageType.getType(in.read());
-		int read;
-		while ((read = in.read()) != Messages.END_OF_MESSAGE && read != -1) {
-			builder.append((char) read);
+		int length = dataIn.readInt();
+
+		byte[] message = new byte[length];
+
+		for (int i = 0; i < length; i++) {
+			message[i] = (byte) dataIn.read();
 		}
 
-		return new Message(builder.toString(), msgType);
+		return new Message(message, msgType);
 	}
 
 }

@@ -6,7 +6,10 @@ public class ClientTest {
 
 	public static void main(String[] args) throws Throwable {
 
-		new Client(new CmdSurface()).startClient();
+		Client c = new Client(new CmdSurface());
+		c.startClient();
+		c.createSocket();
+		c.login("jens", "jens");
 
 	}
 

@@ -1,11 +1,13 @@
 package client;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 
-import chatshared.Messages;
 import commands.Upload;
 import messagehandling.CommandHandler;
+import messagehandling.InputMessageHandler;
 import messagehandling.Message;
 import messagehandling.MessageListener;
 import messagehandling.MessageSender;
@@ -19,6 +21,7 @@ public class Client extends Thread {
 	private CommandHandler commandHandler = new CommandHandler();
 	private Socket socket;
 	private boolean login;
+	private MessageSender messageSender;
 
 	public Client(Surface surface) {
 		this.surface = surface;
@@ -36,21 +39,22 @@ public class Client extends Thread {
 		boolean correctInput = false;
 		while (!correctInput) {
 			try {
-				String ip = "";// surface.getInputWithMessage("IP");
+				String ip = surface.getInputWithMessage("IP");
 
 				int port = 0;
 
 				while (!correctInput) {
 					try {
-						port = 12345;// Integer.parseInt(surface.getInputWithMessage("Port"));
+						port = Integer.parseInt(surface.getInputWithMessage("Port"));
 						correctInput = true;
 					} catch (NumberFormatException e) {
 						correctInput = false;
 					}
 				}
 
-				socket = new Socket(ip, port);
+				setSocket(new Socket(ip, port));
 				correctInput = true;
+
 			} catch (IOException | IllegalArgumentException e) {
 				surface.outputErrorMessage("Fehler beim Verbindungsaufbau!");
 				correctInput = false;
@@ -58,48 +62,51 @@ public class Client extends Thread {
 		}
 	}
 
-	private static int i = 1;
+	public void setSocket(Socket socket) {
+		this.socket = socket;
+		new MessageListener(socket, surface, new InputMessageHandler(this)).start();
+		messageSender = new MessageSender(socket);
+		messageSender.start();
+	}
 
 	public void performLogin() {
 
-		String username = "jens" + i;
-		i++;
+		String username = "";
+
 		while (username.trim().isEmpty())
 			username = surface.getInputWithMessage("Username");
-		String passwort = "jens";
+		String passwort = "";
 		while (passwort.trim().isEmpty())
 			passwort = surface.getInputWithMessage("Passwort");
 
-		byte[] message = new byte[username.length() + passwort.length() + 1];
+		login(username, passwort);
+	}
 
-		for (int i = 0; i < username.length(); i++) {
-			message[i] = (byte) username.charAt(i);
+	public void login(String username, String password) {
+		try {
+
+			byte[] usernameArray = username.getBytes("UTF-8");
+			byte[] passwordArray = password.getBytes("UTF-8");
+
+			byte[] message = ByteBuffer.allocate(8 + usernameArray.length + password.length())
+					.putInt(usernameArray.length).put(usernameArray).putInt(passwordArray.length).put(passwordArray)
+					.array();
+
+			if (messageSender == null)
+				throw new IllegalStateException("Socket must be set first!");
+
+			messageSender.sendMessage(new Message(message, MessageType.LOGIN));
+
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
 		}
-		message[username.length()] = (byte) Messages.DELIMITER;
-		for (int i = 0; i < passwort.length(); i++) {
-			message[username.length() + 1 + i] = (byte) passwort.charAt(i);
-		}
-
-		new MessageSender(socket).sendMessage(new Message(message, MessageType.LOGIN));
 
 	}
 
-	public synchronized Socket getSocket() {
-		return socket;
-	}
-
-	public Surface getSurface() {
-		return surface;
-	}
-
-	public void login() {
+	public void loginSuccess() {
 		synchronized (waitForLogin) {
 			waitForLogin.notifyAll();
 		}
-	}
-
-	public boolean isLoggedIn() {
-		return login;
 	}
 
 	public void sendMessage(Message message) {
@@ -108,19 +115,29 @@ public class Client extends Thread {
 				return;
 			}
 		}
-		new MessageSender(socket).sendMessage(message);
+		messageSender.sendMessage(message);
 	}
 
 	private void startChat() {
 		surface.startChatInput(this);
 	}
 
+	public boolean isLoggedIn() {
+		return login;
+	}
+
+	public Socket getSocket() {
+		return socket;
+	}
+
+	public Surface getSurface() {
+		return surface;
+	}
+
 	@Override
 	public void run() {
 		initializeCommands();
-		createSocket();
-		new MessageListener(this).start();
-		performLogin();
+
 		synchronized (waitForLogin) {
 			try {
 				waitForLogin.wait();

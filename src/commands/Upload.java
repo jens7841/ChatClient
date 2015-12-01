@@ -1,14 +1,8 @@
 package commands;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 
-import chatshared.Messages;
 import client.Client;
-import messagehandling.Message;
-import messagehandling.MessageSender;
-import messagehandling.MessageType;
 
 public class Upload extends Command {
 
@@ -32,19 +26,6 @@ public class Upload extends Command {
 			return;
 		}
 
-		try {
-
-			String message2 = file.getName() + (char) ((byte) Messages.DELIMITER) + String.valueOf(file.length())
-					+ (char) ((byte) Messages.DELIMITER);
-
-			Message message = new Message(message2, MessageType.FILE);
-
-			new MessageSender(client.getSocket()).sendMessage(message, new FileInputStream(file));
-
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		System.out.println("gesendet?");
 	}
 
 }

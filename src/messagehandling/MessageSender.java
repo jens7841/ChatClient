@@ -1,56 +1,54 @@
 package messagehandling;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.Socket;
-
-import chatshared.Messages;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Semaphore;
 
 public class MessageSender extends Thread {
 
 	private Socket receiver;
-	private Message message;
-	private InputStream inStream;
+	private List<Message> messages;
+	private Semaphore lock;
 
 	public MessageSender(Socket receiver) {
+		this.messages = new ArrayList<>();
+		this.lock = new Semaphore(1);
 		this.receiver = receiver;
 	}
 
-	public void sendMessage(Message message, InputStream inStream) {
-		this.inStream = inStream;
-		this.message = message;
-		this.start();
-	}
-
 	public void sendMessage(Message message) {
-		this.message = message;
-		this.inStream = null;
-		this.start();
+		messages.add(message);
+		lock.release();
 	}
 
 	@Override
 	public void run() {
 		try {
-			synchronized (receiver.getOutputStream()) {
-				OutputStream out = new BufferedOutputStream(receiver.getOutputStream());
+			lock.acquire();
 
-				out.write(message.getType().getTypeNumber());
-				out.write(message.getMessage());
+			DataOutputStream out = new DataOutputStream(new BufferedOutputStream(receiver.getOutputStream()));
 
-				if (inStream != null) {
-					inStream = new BufferedInputStream(inStream);
-					int read;
-					while ((read = inStream.read()) != -1) {
-						out.write(read);
-					}
+			while (!receiver.isClosed()) {
+				while (messages.size() > 0) {
+					Message message = messages.get(0);
+					messages.remove(0);
+
+					out.write(message.getType().getTypeNumber());
+					out.writeInt(message.getMessage().length);
+					out.write(message.getMessage());
+
+					out.flush();
 				}
-				out.write(Messages.END_OF_MESSAGE);
-				out.flush();
+				lock.acquire();
 			}
+
 		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 	}

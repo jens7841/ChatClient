@@ -46,7 +46,7 @@ public class InputMessageHandler extends Thread {
 		case LOGIN_SUCCESS_MESSAGE:
 			if (!client.isLoggedIn()) {
 				surface.outputSuccessMessage(message.toString());
-				client.login();
+				client.loginSuccess();
 			}
 			break;
 		case DISCONNECT:
