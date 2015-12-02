@@ -1,8 +1,12 @@
 package commands;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 
 import client.Client;
+import messagehandling.Message;
+import messagehandling.MessageType;
 
 public class Upload extends Command {
 
@@ -24,6 +28,20 @@ public class Upload extends Command {
 		if (file.isDirectory()) {
 			client.getSurface().outputErrorMessage("Die Datei draf kein Verzeichniss sein!");
 			return;
+		}
+
+		try {
+
+			byte[] fileNameBytes = file.getName().getBytes("UTF-8");
+			byte[] message = ByteBuffer.allocate(12 + fileNameBytes.length).putInt(fileNameBytes.length)
+					.put(fileNameBytes).putLong(file.length()).array();
+
+			client.getFileManager().addFile(file);
+
+			client.getMessageSender().sendMessage(new Message(message, MessageType.UPLOAD_REQUEST));
+
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
 		}
 
 	}

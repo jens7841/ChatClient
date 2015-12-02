@@ -35,6 +35,7 @@ public class MessageSender extends Thread {
 			while (!receiver.isClosed()) {
 				while (messages.size() > 0) {
 					Message message = messages.get(0);
+
 					messages.remove(0);
 
 					out.write(message.getType().getTypeNumber());

@@ -26,9 +26,7 @@ public class MessageInputStream extends InputStream {
 
 		byte[] message = new byte[length];
 
-		for (int i = 0; i < length; i++) {
-			message[i] = (byte) dataIn.read();
-		}
+		dataIn.readFully(message);
 
 		return new Message(message, msgType);
 	}

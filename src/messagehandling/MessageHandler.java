@@ -1,26 +1,24 @@
 package messagehandling;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
 
 import client.Client;
 import surfaces.Surface;
+import uploadhandling.FileManager;
+import uploadhandling.UploadFile;
 
-public class InputMessageHandler extends Thread {
+public class MessageHandler {
 
 	private Client client;
-	private Message message;
 
-	public InputMessageHandler(Client client) {
+	public MessageHandler(Client client) {
 		this.client = client;
 	}
 
 	public void handleMessage(Message message) {
-		this.message = message;
-		this.start();
-	}
-
-	@Override
-	public void run() {
 
 		Surface surface = client.getSurface();
 
@@ -57,9 +55,40 @@ public class InputMessageHandler extends Thread {
 			}
 			new Client(client.getSurface()).startClient();
 			break;
-		case LOGIN:
+		case UPLOAD_CONFIRMATION:
+			uploadConfirmation(message);
+			break;
+		case UPLOAD_REJECT:
+
+			break;
 		default:
 			break;
+		}
+
+	}
+
+	private void uploadConfirmation(Message message) {
+
+		try {
+			DataInputStream in = new DataInputStream(
+					new BufferedInputStream(new ByteArrayInputStream(message.getMessage())));
+
+			byte[] fileNameBytes = new byte[in.readInt()];
+			in.readFully(fileNameBytes);
+			String fileName = new String(fileNameBytes, "UTF-8");
+
+			long fileSize = in.readLong();
+			int id = in.readInt();
+
+			FileManager fileManager = client.getFileManager();
+			UploadFile file = fileManager.getFileWaintingForConfirmation(fileName, fileSize);
+
+			if (file != null) {
+				file.startUpload(client.getMessageSender(), id);
+			}
+
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 

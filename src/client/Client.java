@@ -7,12 +7,13 @@ import java.nio.ByteBuffer;
 
 import commands.Upload;
 import messagehandling.CommandHandler;
-import messagehandling.InputMessageHandler;
 import messagehandling.Message;
+import messagehandling.MessageHandler;
 import messagehandling.MessageListener;
 import messagehandling.MessageSender;
 import messagehandling.MessageType;
 import surfaces.Surface;
+import uploadhandling.FileManager;
 
 public class Client extends Thread {
 
@@ -22,9 +23,11 @@ public class Client extends Thread {
 	private Socket socket;
 	private boolean login;
 	private MessageSender messageSender;
+	private FileManager fileManager;
 
 	public Client(Surface surface) {
 		this.surface = surface;
+		this.fileManager = new FileManager();
 	}
 
 	public void startClient() {
@@ -64,7 +67,7 @@ public class Client extends Thread {
 
 	public void setSocket(Socket socket) {
 		this.socket = socket;
-		new MessageListener(socket, surface, new InputMessageHandler(this)).start();
+		new MessageListener(socket, surface, new MessageHandler(this)).start();
 		messageSender = new MessageSender(socket);
 		messageSender.start();
 	}
@@ -132,6 +135,14 @@ public class Client extends Thread {
 
 	public Surface getSurface() {
 		return surface;
+	}
+
+	public MessageSender getMessageSender() {
+		return messageSender;
+	}
+
+	public FileManager getFileManager() {
+		return fileManager;
 	}
 
 	@Override

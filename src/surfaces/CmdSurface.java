@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 
 import client.Client;
 import messagehandling.Message;
@@ -68,7 +69,11 @@ public class CmdSurface extends Surface {
 				return;
 			}
 			if (!input.isEmpty()) {
-				client.sendMessage(new Message(input, MessageType.CHAT_MESSAGE));
+				try {
+					client.sendMessage(new Message(input.getBytes("UTF-8"), MessageType.CHAT_MESSAGE));
+				} catch (UnsupportedEncodingException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 

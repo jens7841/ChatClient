@@ -11,12 +11,12 @@ public class MessageListener extends Thread {
 
 	private Socket socket;
 	private Surface surface;
-	private InputMessageHandler inputMessageHandler;
+	private MessageHandler messageHandler;
 
-	public MessageListener(Socket socket, Surface surface, InputMessageHandler inputMessageHandler) {
+	public MessageListener(Socket socket, Surface surface, MessageHandler messageHandler) {
 		this.socket = socket;
 		this.surface = surface;
-		this.inputMessageHandler = inputMessageHandler;
+		this.messageHandler = messageHandler;
 	}
 
 	@Override
@@ -28,7 +28,7 @@ public class MessageListener extends Thread {
 
 				Message msg = in.readMessage();
 
-				inputMessageHandler.handleMessage(msg);
+				messageHandler.handleMessage(msg);
 
 			} catch (SocketException e) {
 				if (!e.getMessage().equalsIgnoreCase("socket closed"))
