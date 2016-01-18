@@ -21,6 +21,9 @@ public class MessageHandlerFactory {
 		case LOGIN_ERROR:
 			return (MessageHandler) registry.getService(ServiceRegistry.LOGIN_ERROR_MESSAGE_HANDLER);
 
+		case UPLOAD_CONFIRMATION:
+			return (MessageHandler) registry.getService(ServiceRegistry.UPLOAD_CONFIRMATION_HANDLER);
+
 		default:
 			break;
 

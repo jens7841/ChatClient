@@ -13,6 +13,9 @@ public class DefaultMessageSender implements MessageSender {
 		this.out = out;
 	}
 
+	public DefaultMessageSender() {
+	}
+
 	@Override
 	public void sendMessage(Message message) {
 		try {
@@ -22,9 +25,14 @@ public class DefaultMessageSender implements MessageSender {
 			output.flush();
 
 		} catch (IOException e) {
-			e.printStackTrace();
+			e.printStackTrace(); // TODO Throw?
 		}
 
+	}
+
+	@Override
+	public void setOutputStream(OutputStream out) {
+		this.out = out;
 	}
 
 }

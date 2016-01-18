@@ -42,18 +42,24 @@ public class ConsoleSurface extends Thread implements Surface {
 	public void run() {
 
 		while (true) {
-			String input = getConsoleInput();
-			if (!input.isEmpty() && !input.trim().isEmpty()) {
+			String input = getConsoleInput().trim();
 
-				try {
-					Message message = new Message(input.getBytes("UTF-8"), MessageType.CHAT_MESSAGE);
+			try {
+				if (input.startsWith("/")) {
 
+					Message message = new Message(input.substring(1).getBytes("UTF-8"), MessageType.COMMAND);
 					messages.put(message);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				} catch (UnsupportedEncodingException e1) {
-					e1.printStackTrace();
+
+				} else if (!input.isEmpty()) {
+
+					Message message = new Message(input.getBytes("UTF-8"), MessageType.CHAT_MESSAGE);
+					messages.put(message);
 				}
+
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} catch (UnsupportedEncodingException e1) {
+				e1.printStackTrace();
 			}
 		}
 

@@ -8,11 +8,15 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.concurrent.Semaphore;
 
+import commandhandling.CommandHandler;
+import commandhandling.commands.Upload;
+import filehandling.FileManager;
 import messagehandling.Message;
 import messagehandling.MessageHandlerFactory;
 import messagehandling.MessageType;
 import messagehandling.messagehandler.LoginErrorMessageHandler;
 import messagehandling.messagehandler.LoginSuccessMessageHandler;
+import messagehandling.messagehandler.UploadConfirmationHandler;
 import messagehandling.messageinput.MessageListener;
 import messagehandling.messageinput.ThreadedMessageListener;
 import messagehandling.messageoutput.DefaultMessageSender;
@@ -43,6 +47,8 @@ public class Client {
 	private MessageSender messageSender;
 	private MessageHandlerFactory messageHandlerFactory;
 	private Semaphore waitForLoginMessage;
+	private CommandHandler commandHandler;
+	private FileManager fileManager;
 
 	public Client(SurfaceHandler surfaceHandler, String ip, int port) {
 		this.surfaceHandler = surfaceHandler;
@@ -50,8 +56,16 @@ public class Client {
 		this.adress = ip;
 		this.port = port;
 		this.waitForLoginMessage = new Semaphore(0);
+		this.commandHandler = new CommandHandler();
+		this.fileManager = new FileManager();
+		this.messageSender = new DefaultMessageSender();
 
 		initializeServices();
+	}
+
+	private void initializeCommands() {
+		commandHandler
+				.addCommand(new Upload("upload", new String[] { "up" }, surfaceHandler, messageSender, fileManager));
 	}
 
 	public Client(ConsoleSurfaceHandler surfaceHandler) {
@@ -91,14 +105,33 @@ public class Client {
 
 		}
 
+		initializeCommands();
+
 		waitForSurfaceMessages();
 
 	}
 
 	private void waitForSurfaceMessages() {
 		while (true) {
-			messageSender.sendMessage(surfaceHandler.getMessage());
-			// TODO Commandhandler
+
+			Message message = surfaceHandler.getMessage();
+
+			if (message.getType().equals(MessageType.COMMAND)) {
+
+				String input = message.toString().trim();
+
+				int indexOfSpace = input.indexOf(" ");
+
+				if ((indexOfSpace != -1 && commandHandler.commandKnown(input.substring(0, indexOfSpace)))
+						|| (indexOfSpace == -1 && commandHandler.commandKnown(input))) {
+					commandHandler.handleCommand(input);
+				} else {
+					messageSender.sendMessage(message);
+				}
+
+			} else {
+				messageSender.sendMessage(message);
+			}
 		}
 	}
 
@@ -134,7 +167,7 @@ public class Client {
 
 			((ThreadedMessageListener) messageListener).start();
 
-			messageSender = new DefaultMessageSender(this.socket.getOutputStream());
+			messageSender.setOutputStream(this.socket.getOutputStream());
 		} catch (UnknownHostException e) {
 		} catch (IOException e) {
 		} catch (IllegalArgumentException e) {
@@ -151,6 +184,8 @@ public class Client {
 				ServiceRegistry.LOGIN_SUCCESS_MESSAGE_HANDLER);
 		registry.register(new LoginErrorMessageHandler(waitForLoginMessage),
 				ServiceRegistry.LOGIN_ERROR_MESSAGE_HANDLER);
+		registry.register(new UploadConfirmationHandler(surfaceHandler, fileManager, messageSender),
+				ServiceRegistry.UPLOAD_CONFIRMATION_HANDLER);
 		messageHandlerFactory = new MessageHandlerFactory(registry);
 	}
 
