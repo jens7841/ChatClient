@@ -9,18 +9,13 @@ public class Test extends Thread {
 
 	public static void main(String[] args) {
 		new Test().start();
-		new Test().start();
-		new Test().start();
-		new Test().start();
-		new Test().start();
-		new Test().start();
 	}
 
 	BufferedOutputStream fileOutputStream;
 
 	public Test() {
 		try {
-			fileOutputStream = new BufferedOutputStream(new FileOutputStream("test.big", true));
+			fileOutputStream = new BufferedOutputStream(new FileOutputStream("test1gb.big", true));
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -29,7 +24,7 @@ public class Test extends Thread {
 	@Override
 	public void run() {
 		try {
-			for (int i = 0; i < 190000000000000l; i++) {
+			for (int i = 0; i < 1024 * 1024 * 1024; i++) {
 				fileOutputStream.write(Byte.MAX_VALUE);
 			}
 			fileOutputStream.close();
