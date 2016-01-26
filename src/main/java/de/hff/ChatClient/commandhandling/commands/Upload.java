@@ -9,20 +9,18 @@ import de.hff.ChatClient.commandhandling.Command;
 import de.hff.ChatClient.filehandling.FileManager;
 import de.hff.ChatClient.filehandling.UploadFile;
 import de.hff.ChatClient.messagehandling.Message;
-import de.hff.ChatClient.messagehandling.MessageType;
 import de.hff.ChatClient.messagehandling.messageoutput.MessageSender;
 import de.hff.ChatClient.surfaces.SurfaceHandler;
+import de.hff.ChatShared.messagehandling.MessageType;
 
 public class Upload extends Command {
 
-	private SurfaceHandler surfaceHandler;
 	private MessageSender messageSender;
 	private FileManager fileManager;
 
 	public Upload(String command, String[] aliases, SurfaceHandler surfaceHandler, MessageSender sender,
 			FileManager fileManager) {
-		super(command, aliases);
-		this.surfaceHandler = surfaceHandler;
+		super(command, surfaceHandler, aliases);
 		this.messageSender = sender;
 		this.fileManager = fileManager;
 	}

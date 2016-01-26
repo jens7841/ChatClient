@@ -12,7 +12,14 @@ public class CommandHandler {
 	}
 
 	public void handleCommand(String input) {
-		Command cmd = getCommand(input);
+		String command;
+		if (input.contains(" ")) {
+			command = input.substring(0, input.indexOf(' '));
+		} else {
+			command = input.substring(0);
+		}
+		Command cmd = getCommand(command);
+
 		if (cmd != null) {
 			if (input.indexOf(" ") == -1) {
 				cmd.execute("");

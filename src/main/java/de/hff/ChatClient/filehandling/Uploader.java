@@ -8,11 +8,11 @@ import java.io.IOException;
 
 import de.hff.ChatClient.client.ServiceRegistry;
 import de.hff.ChatClient.messagehandling.Message;
-import de.hff.ChatClient.messagehandling.MessageType;
 import de.hff.ChatClient.messagehandling.messageoutput.MessageSender;
 import de.hff.ChatClient.messagehandling.messageoutput.TimedOutputStream;
 import de.hff.ChatClient.stats.SpeedDiagram;
-import de.hff.ChatClient.stats.SpeedDiegramPainter;
+import de.hff.ChatClient.stats.SpeedDiagramPainter;
+import de.hff.ChatShared.messagehandling.MessageType;
 
 public class Uploader extends Thread {
 
@@ -29,9 +29,8 @@ public class Uploader extends Thread {
 
 	@Override
 	public void run() {
-
 		SpeedDiagram speedDiagram = new SpeedDiagram();
-		SpeedDiegramPainter speedDiegramPainter = new SpeedDiegramPainter(speedDiagram, timedOutputStream);
+		SpeedDiagramPainter speedDiegramPainter = new SpeedDiagramPainter(speedDiagram, timedOutputStream);
 		speedDiegramPainter.start();
 
 		FileInputStream in = null;

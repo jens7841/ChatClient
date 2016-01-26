@@ -2,6 +2,8 @@ package de.hff.ChatClient.messagehandling;
 
 import java.io.UnsupportedEncodingException;
 
+import de.hff.ChatShared.messagehandling.MessageType;
+
 public class Message {
 	private byte[] message;
 	private MessageType type;

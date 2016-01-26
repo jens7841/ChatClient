@@ -37,13 +37,13 @@ public class SpeedDiagram extends JFrame {
 
 	}
 
-	public void addvalue(double MbPerSecound, int secound) {
+	public void addvalue(double MbPerSecond, int second) {
 
 		if (dataset.getColumnCount() >= 20) {
 			dataset.removeColumn("" + (secondCounter++));
 		}
 
-		dataset.addValue(MbPerSecound, "MB/s", "" + secound);
+		dataset.addValue(MbPerSecond, "MB/s", "" + second);
 	}
 
 }

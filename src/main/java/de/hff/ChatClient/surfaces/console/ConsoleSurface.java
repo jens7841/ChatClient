@@ -8,8 +8,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import de.hff.ChatClient.messagehandling.Message;
-import de.hff.ChatClient.messagehandling.MessageType;
 import de.hff.ChatClient.surfaces.Surface;
+import de.hff.ChatShared.messagehandling.MessageType;
 
 public class ConsoleSurface extends Thread implements Surface {
 

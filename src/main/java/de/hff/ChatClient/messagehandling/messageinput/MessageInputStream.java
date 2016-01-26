@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import de.hff.ChatClient.messagehandling.Message;
-import de.hff.ChatClient.messagehandling.MessageType;
+import de.hff.ChatShared.messagehandling.MessageType;
 
 public class MessageInputStream extends FilterInputStream {
 

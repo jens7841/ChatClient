@@ -9,11 +9,13 @@ import java.net.UnknownHostException;
 import java.util.concurrent.Semaphore;
 
 import de.hff.ChatClient.commandhandling.CommandHandler;
+import de.hff.ChatClient.commandhandling.commands.Download;
 import de.hff.ChatClient.commandhandling.commands.Upload;
 import de.hff.ChatClient.filehandling.FileManager;
 import de.hff.ChatClient.messagehandling.Message;
 import de.hff.ChatClient.messagehandling.MessageHandlerFactory;
-import de.hff.ChatClient.messagehandling.MessageType;
+import de.hff.ChatClient.messagehandling.messagehandler.DownloadPackageMessageHandler;
+import de.hff.ChatClient.messagehandling.messagehandler.DownloadRejectMessageHandler;
 import de.hff.ChatClient.messagehandling.messagehandler.LoginErrorMessageHandler;
 import de.hff.ChatClient.messagehandling.messagehandler.LoginSuccessMessageHandler;
 import de.hff.ChatClient.messagehandling.messagehandler.UploadConfirmationHandler;
@@ -25,6 +27,7 @@ import de.hff.ChatClient.messagehandling.messageoutput.TimedOutputStream;
 import de.hff.ChatClient.surfaces.SurfaceHandler;
 import de.hff.ChatClient.surfaces.console.ConsoleSurface;
 import de.hff.ChatClient.surfaces.console.ConsoleSurfaceHandler;
+import de.hff.ChatShared.messagehandling.MessageType;
 
 public class Client {
 
@@ -49,7 +52,8 @@ public class Client {
 	private MessageHandlerFactory messageHandlerFactory;
 	private Semaphore waitForLoginMessage;
 	private CommandHandler commandHandler;
-	private FileManager fileManager;
+	private FileManager uploadFileManager;
+	private FileManager downloadFileManager;
 	private ServiceRegistry registry;
 
 	public Client(SurfaceHandler surfaceHandler, String ip, int port) {
@@ -59,7 +63,8 @@ public class Client {
 		this.port = port;
 		this.waitForLoginMessage = new Semaphore(0);
 		this.commandHandler = new CommandHandler();
-		this.fileManager = new FileManager();
+		this.uploadFileManager = new FileManager();
+		this.downloadFileManager = new FileManager();
 		this.messageSender = new DefaultMessageSender();
 		registry = new ServiceRegistry();
 
@@ -67,8 +72,10 @@ public class Client {
 	}
 
 	private void initializeCommands() {
-		commandHandler
-				.addCommand(new Upload("upload", new String[] { "up" }, surfaceHandler, messageSender, fileManager));
+		commandHandler.addCommand(
+				new Upload("upload", new String[] { "up" }, surfaceHandler, messageSender, uploadFileManager));
+		commandHandler.addCommand(new Download("download", new String[] { "get", "down" }, surfaceHandler,
+				messageSender, downloadFileManager));
 	}
 
 	public Client(ConsoleSurfaceHandler surfaceHandler) {
@@ -188,8 +195,11 @@ public class Client {
 				ServiceRegistry.LOGIN_SUCCESS_MESSAGE_HANDLER);
 		registry.register(new LoginErrorMessageHandler(waitForLoginMessage),
 				ServiceRegistry.LOGIN_ERROR_MESSAGE_HANDLER);
-		registry.register(new UploadConfirmationHandler(surfaceHandler, fileManager, messageSender, registry),
+		registry.register(new UploadConfirmationHandler(surfaceHandler, uploadFileManager, messageSender, registry),
 				ServiceRegistry.UPLOAD_CONFIRMATION_HANDLER);
+		registry.register(new DownloadRejectMessageHandler(), ServiceRegistry.DOWNLOAD_REJECT_MESSAGE_HANDLER);
+		registry.register(new DownloadPackageMessageHandler(), ServiceRegistry.DOWNLOAD_PACKAGE_MESSAGE_HANDLER);
+
 		messageHandlerFactory = new MessageHandlerFactory(registry);
 	}
 

@@ -9,9 +9,9 @@ import de.hff.ChatClient.filehandling.FileManager;
 import de.hff.ChatClient.filehandling.UploadFile;
 import de.hff.ChatClient.filehandling.Uploader;
 import de.hff.ChatClient.messagehandling.Message;
-import de.hff.ChatClient.messagehandling.MessageType;
 import de.hff.ChatClient.messagehandling.messageoutput.MessageSender;
 import de.hff.ChatClient.surfaces.SurfaceHandler;
+import de.hff.ChatShared.messagehandling.MessageType;
 
 public class UploadConfirmationHandler implements MessageHandler {
 

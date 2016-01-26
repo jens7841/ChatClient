@@ -55,7 +55,6 @@ public class TimedOutputStream extends BufferedOutputStream implements Service {
 			bytePerSecond = byteCounter;
 			byteCounter = 0;
 			startTime = System.currentTimeMillis();
-			System.out.println(getSpeed());
 		}
 	}
 
