@@ -13,10 +13,10 @@ public class Download extends Command {
 	private FileManager fileManager;
 
 	public Download(String command, String[] aliases, SurfaceHandler surfaceHandler, MessageSender sender,
-			FileManager fileManager) {
+			FileManager downloadFileManager) {
 		super(command, surfaceHandler, aliases);
 		this.messageSender = sender;
-		this.fileManager = fileManager;
+		this.fileManager = downloadFileManager;
 	}
 
 	@Override
@@ -35,6 +35,7 @@ public class Download extends Command {
 				fileId = Integer.parseInt(msg);
 				correctInput = true;
 			} catch (NumberFormatException e) {
+				surfaceHandler.handleMessage(new Message("/download <File-ID>", MessageType.ERROR));
 			}
 		} while (!correctInput);
 

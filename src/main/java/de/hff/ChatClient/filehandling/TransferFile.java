@@ -2,17 +2,26 @@ package de.hff.ChatClient.filehandling;
 
 import java.io.File;
 
-public class UploadFile {
+public class TransferFile {
 
 	private File file;
 	private int id;
+	private long expectedSize;
 
-	public UploadFile(File file) {
+	public TransferFile(File file) {
 		this.file = file;
 	}
 
 	public File getFile() {
 		return file;
+	}
+
+	public long getExpectedSize() {
+		return expectedSize;
+	}
+
+	public void setExpectedSize(long expectedSize) {
+		this.expectedSize = expectedSize;
 	}
 
 	public int getId() {

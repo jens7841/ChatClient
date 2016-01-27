@@ -28,8 +28,12 @@ public class MessageHandlerFactory {
 		case DOWNLOAD_REJECT:
 			return (MessageHandler) registry.getService(ServiceRegistry.DOWNLOAD_REJECT_MESSAGE_HANDLER);
 
+		case DOWNLOAD_CONFIRMATION:
+			return (MessageHandler) registry.getService(ServiceRegistry.DOWNLOAD_CONFIRMATION_MESSAGE_HANDLER);
+
 		case DOWNLOAD_PACKAGE:
 			return (MessageHandler) registry.getService(ServiceRegistry.DOWNLOAD_PACKAGE_MESSAGE_HANDLER);
+
 		default:
 			break;
 

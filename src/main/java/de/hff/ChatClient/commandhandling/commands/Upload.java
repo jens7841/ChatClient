@@ -7,7 +7,7 @@ import java.io.IOException;
 
 import de.hff.ChatClient.commandhandling.Command;
 import de.hff.ChatClient.filehandling.FileManager;
-import de.hff.ChatClient.filehandling.UploadFile;
+import de.hff.ChatClient.filehandling.TransferFile;
 import de.hff.ChatClient.messagehandling.Message;
 import de.hff.ChatClient.messagehandling.messageoutput.MessageSender;
 import de.hff.ChatClient.surfaces.SurfaceHandler;
@@ -54,7 +54,7 @@ public class Upload extends Command {
 				e.printStackTrace();
 			}
 
-			fileManager.addFile(new UploadFile(file));
+			fileManager.addFile(new TransferFile(file));
 
 			messageSender.sendMessage(new Message(byteArrayOutputStream.toByteArray(), MessageType.UPLOAD_REQUEST));
 

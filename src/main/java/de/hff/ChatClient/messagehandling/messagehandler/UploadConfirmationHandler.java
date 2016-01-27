@@ -6,7 +6,7 @@ import java.io.IOException;
 
 import de.hff.ChatClient.client.ServiceRegistry;
 import de.hff.ChatClient.filehandling.FileManager;
-import de.hff.ChatClient.filehandling.UploadFile;
+import de.hff.ChatClient.filehandling.TransferFile;
 import de.hff.ChatClient.filehandling.Uploader;
 import de.hff.ChatClient.messagehandling.Message;
 import de.hff.ChatClient.messagehandling.messageoutput.MessageSender;
@@ -41,7 +41,8 @@ public class UploadConfirmationHandler implements MessageHandler {
 			long fileSize = in.readLong();
 
 			String fileName = new String(fileNameBytes, "UTF-8");
-			UploadFile file = fileManager.getFile(fileSize, fileName);
+			TransferFile file = fileManager.getFile(fileSize, fileName);
+			fileManager.removeFile(fileSize, fileName);
 
 			if (file != null) {
 				int id = in.readInt();

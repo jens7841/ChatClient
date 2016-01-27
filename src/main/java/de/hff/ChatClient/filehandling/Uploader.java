@@ -17,11 +17,11 @@ import de.hff.ChatShared.messagehandling.MessageType;
 public class Uploader extends Thread {
 
 	private static final int BUFFER_SIZE = 1024 * 1024;
-	private UploadFile file;
+	private TransferFile file;
 	private MessageSender sender;
 	private TimedOutputStream timedOutputStream;
 
-	public Uploader(UploadFile file, MessageSender sender, ServiceRegistry registry) {
+	public Uploader(TransferFile file, MessageSender sender, ServiceRegistry registry) {
 		this.file = file;
 		this.sender = sender;
 		this.timedOutputStream = (TimedOutputStream) registry.getService(ServiceRegistry.TIMED_MESSAGE_OUTPUT_STREAM);

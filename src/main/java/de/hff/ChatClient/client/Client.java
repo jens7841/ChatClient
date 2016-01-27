@@ -14,6 +14,7 @@ import de.hff.ChatClient.commandhandling.commands.Upload;
 import de.hff.ChatClient.filehandling.FileManager;
 import de.hff.ChatClient.messagehandling.Message;
 import de.hff.ChatClient.messagehandling.MessageHandlerFactory;
+import de.hff.ChatClient.messagehandling.messagehandler.DownloadConfirmationMessageHandler;
 import de.hff.ChatClient.messagehandling.messagehandler.DownloadPackageMessageHandler;
 import de.hff.ChatClient.messagehandling.messagehandler.DownloadRejectMessageHandler;
 import de.hff.ChatClient.messagehandling.messagehandler.LoginErrorMessageHandler;
@@ -198,7 +199,10 @@ public class Client {
 		registry.register(new UploadConfirmationHandler(surfaceHandler, uploadFileManager, messageSender, registry),
 				ServiceRegistry.UPLOAD_CONFIRMATION_HANDLER);
 		registry.register(new DownloadRejectMessageHandler(), ServiceRegistry.DOWNLOAD_REJECT_MESSAGE_HANDLER);
-		registry.register(new DownloadPackageMessageHandler(), ServiceRegistry.DOWNLOAD_PACKAGE_MESSAGE_HANDLER);
+		registry.register(new DownloadPackageMessageHandler(downloadFileManager),
+				ServiceRegistry.DOWNLOAD_PACKAGE_MESSAGE_HANDLER);
+		registry.register(new DownloadConfirmationMessageHandler(downloadFileManager),
+				ServiceRegistry.DOWNLOAD_CONFIRMATION_MESSAGE_HANDLER);
 
 		messageHandlerFactory = new MessageHandlerFactory(registry);
 	}

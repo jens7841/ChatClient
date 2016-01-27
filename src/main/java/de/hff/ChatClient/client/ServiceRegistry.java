@@ -9,6 +9,7 @@ public class ServiceRegistry {
 	public static final String UPLOAD_CONFIRMATION_HANDLER = "uploadconfirmationhandler";
 	public static final String DOWNLOAD_REJECT_MESSAGE_HANDLER = "downloadrejectmessagehandler";
 	public static final String DOWNLOAD_PACKAGE_MESSAGE_HANDLER = "downloadpackagemessagehandler";
+	public static final String DOWNLOAD_CONFIRMATION_MESSAGE_HANDLER = "DownloadConfirmationMessageHandler";
 	public static final String TIMED_MESSAGE_OUTPUT_STREAM = "timedmessageoutputstream";
 	private final HashMap<String, Service> hashMap = new HashMap<>();
 
